@@ -1,0 +1,50 @@
+// ============================================================================
+// DORMANT NeoForge module.
+//
+// This does NOT build yet: NeoForge has not published a Minecraft 26.3 build
+// (their maven currently tops out at the 26.1 alphas / 26.2 betas). Everything
+// here is a scaffold written from the standard NeoForge/ModDevGradle shape — it
+// is UNVERIFIED against a real 26.3 artifact and will almost certainly need small
+// adjustments (plugin version, event names, registration timing) once one exists.
+//
+// To activate when NeoForge 26.3 lands:
+//   1. Set neoforge_version in gradle.properties to the published build.
+//   2. Uncomment `include 'neoforge'` in settings.gradle.
+//   3. Confirm the ModDevGradle plugin version below supports that MC version.
+//   4. Build/run and fix up the entrypoint against the real NeoForge API.
+// ============================================================================
+
+plugins {
+    // Version needs confirming for the 26.3 line when it exists.
+    id 'net.neoforged.moddev' version '2.0.107'
+}
+
+base {
+    archivesName = "${project.archives_base_name}-neoforge"
+}
+
+neoForge {
+    version = project.neoforge_version
+
+    runs {
+        client { client() }
+        server { server() }
+    }
+
+    mods {
+        flyingcarpet {
+            sourceSet sourceSets.main
+        }
+    }
+}
+
+sourceSets {
+    // Compile the shared, loader-agnostic code from common/ alongside NeoForge code.
+    main {
+        java.srcDir '../common/src/main/java'
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    it.options.release = 21
+}

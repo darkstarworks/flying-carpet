@@ -4,8 +4,20 @@ pluginManagement {
             name = 'Fabric'
             url = 'https://maven.fabricmc.net/'
         }
+        maven {
+            name = 'NeoForged'
+            url = 'https://maven.neoforged.net/releases'
+        }
         gradlePluginPortal()
     }
 }
 
 rootProject.name = 'flying-carpet'
+
+include 'fabric'
+
+// NeoForge module is scaffolded but DORMANT: NeoForge has not published a build
+// for Minecraft 26.3 yet (their maven tops out at the 26.1 alphas / 26.2 betas).
+// Uncomment the line below and set neoforge_version in gradle.properties once a
+// 26.3 build exists — the module is otherwise ready to go.
+// include 'neoforge'

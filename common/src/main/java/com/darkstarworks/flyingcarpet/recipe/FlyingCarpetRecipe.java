@@ -1,6 +1,6 @@
 package com.darkstarworks.flyingcarpet.recipe;
 
-import com.darkstarworks.flyingcarpet.FlyingCarpet;
+import com.darkstarworks.flyingcarpet.ModContent;
 import com.darkstarworks.flyingcarpet.config.FlyingCarpetConfig;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -111,7 +111,7 @@ public class FlyingCarpetRecipe extends CustomRecipe {
                 break;
             }
         }
-        Item carpet = FlyingCarpet.CARPET_ITEMS.get(color);
+        Item carpet = ModContent.CARPET_ITEMS.get(color);
         // Glint is baked into the carpet item's default components at registration.
         return carpet != null ? new ItemStack(carpet) : ItemStack.EMPTY;
     }

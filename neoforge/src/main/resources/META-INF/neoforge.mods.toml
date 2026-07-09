@@ -1,0 +1,31 @@
+# DORMANT NeoForge metadata — template, unverified against a real 26.3 build.
+# Version ranges below are placeholders to fill in once NeoForge 26.3 exists.
+
+modLoader = "javafml"
+loaderVersion = "[1,)"
+license = "ARR"
+
+[[mods]]
+modId = "flyingcarpet"
+version = "${version}"
+displayName = "Flying Carpet"
+authors = "darkstarworks"
+description = '''
+Craft matching Cushions into a rideable, enchanted Flying Carpet that flies
+faster than a Happy Ghast.
+'''
+
+[[dependencies.flyingcarpet]]
+modId = "neoforge"
+type = "required"
+# Fill in the real NeoForge 26.3 version range here.
+versionRange = "[0,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.flyingcarpet]]
+modId = "minecraft"
+type = "required"
+versionRange = "[26.3,)"
+ordering = "NONE"
+side = "BOTH"

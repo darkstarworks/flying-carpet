@@ -1,8 +1,8 @@
 package com.darkstarworks.flyingcarpet.config;
 
+import com.darkstarworks.flyingcarpet.ModContent;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import net.fabricmc.loader.api.FabricLoader;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -72,7 +72,8 @@ public class FlyingCarpetConfig {
     }
 
     private static Path path() {
-        return FabricLoader.getInstance().getConfigDir().resolve(FILE_NAME);
+        // CONFIG_DIR is provided by the active loader's entrypoint before load().
+        return ModContent.CONFIG_DIR.resolve(FILE_NAME);
     }
 
     public static FlyingCarpetConfig load() {

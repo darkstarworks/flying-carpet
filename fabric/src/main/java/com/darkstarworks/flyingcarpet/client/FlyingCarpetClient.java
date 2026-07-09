@@ -1,6 +1,6 @@
 package com.darkstarworks.flyingcarpet.client;
 
-import com.darkstarworks.flyingcarpet.FlyingCarpet;
+import com.darkstarworks.flyingcarpet.ModContent;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
@@ -22,7 +22,7 @@ public class FlyingCarpetClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-        EntityRendererRegistry.register(FlyingCarpet.FLYING_CARPET, FlyingCarpetRenderer::new);
+        EntityRendererRegistry.register(ModContent.FLYING_CARPET, FlyingCarpetRenderer::new);
 
         // Unbound by default (players bind it in vanilla Controls if they want it).
         openConfigKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(

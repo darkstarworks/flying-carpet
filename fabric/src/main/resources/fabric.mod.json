@@ -16,7 +16,7 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "com.darkstarworks.flyingcarpet.FlyingCarpet"
+      "com.darkstarworks.flyingcarpet.FlyingCarpetFabric"
     ],
     "client": [
       "com.darkstarworks.flyingcarpet.client.FlyingCarpetClient"

@@ -1,6 +1,6 @@
 package com.darkstarworks.flyingcarpet.item;
 
-import com.darkstarworks.flyingcarpet.FlyingCarpet;
+import com.darkstarworks.flyingcarpet.ModContent;
 import com.darkstarworks.flyingcarpet.entity.FlyingCarpetEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -50,7 +50,7 @@ public class FlyingCarpetItem extends Item {
 
         ItemStack stack = context.getItemInHand();
         if (level instanceof ServerLevel serverLevel) {
-            FlyingCarpetEntity carpet = FlyingCarpet.FLYING_CARPET.create(serverLevel, EntitySpawnReason.SPAWN_ITEM_USE);
+            FlyingCarpetEntity carpet = ModContent.FLYING_CARPET.create(serverLevel, EntitySpawnReason.SPAWN_ITEM_USE);
             if (carpet == null) {
                 return InteractionResult.FAIL;
             }
