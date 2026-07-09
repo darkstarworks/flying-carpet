@@ -9,7 +9,7 @@
 <p><span style="color: #ecf0f1;">It comes in all 16 colors, and a simple in-game settings menu lets you tweak how fast it flies, how forgiving the landing check is, and even what it takes to craft one.</span></p>
 <p><strong><span style="color: #ecf0f1;">Short video:</span><br></strong><br>
   
-<video src="https://www.youtube.com/watch?v=MO6IncBuFpM" width="500"></video>
+https://github.com/user-attachments/assets/84a5f9d4-c5b0-470f-8d88-577fec047f02
 
 </p>
 <p><span style="color: #ecf0f1;">Type<strong>&nbsp;<span style="color: #95a5a6;"><code>/flyingcarpet</code></span> </strong>or<strong> <span style="color: #95a5a6;"><code>/fc</code></span>&nbsp;</strong>to open the settings:</span></p>
