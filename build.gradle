@@ -1,0 +1,52 @@
+plugins {
+    // Non-remapping Loom for the unobfuscated 26.x line. Per the Fabric 26.1
+    // example mod: plugin id 'net.fabricmc.fabric-loom', loom 1.17-SNAPSHOT,
+    // and NO mappings dependency (MC is already unobfuscated).
+    id 'net.fabricmc.fabric-loom' version '1.17-SNAPSHOT'
+    id 'maven-publish'
+}
+
+version = project.mod_version
+group = project.maven_group
+
+base {
+    archivesName = project.archives_base_name
+}
+
+repositories {
+    // Add repositories to retrieve artifacts from in here.
+    // Fabric API + loader come from the Fabric maven, declared in settings.gradle.
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    // NO mappings line: Minecraft is unobfuscated from 26.1 onward (already in
+    // human-readable official names), and Yarn is discontinued. Loom does not remap.
+    // Plain configurations (not modImplementation) since there is nothing to remap.
+    implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+}
+
+processResources {
+    inputs.property "version", project.version
+
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    it.options.release = 21
+}
+
+java {
+    withSourcesJar()
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
+
+jar {
+    from("LICENSE") {
+        rename { "${it}_${project.archivesName.get()}" }
+    }
+}
