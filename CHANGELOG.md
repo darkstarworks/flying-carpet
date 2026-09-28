@@ -1,14 +1,13 @@
-## 0.2.0
+## [0.2.0] - 2026-09-28
 
-- Updated to the full Minecraft 26.3 release.
-- Now also available for NeoForge.
-- New flight panel while riding: speed, height, and what happens if you get off right now.
-- New: hold sneak and right-click a carpet to pick it back up.
-- New settings: what happens when you get off mid-air (turn into a cushion, drop as a carpet, or keep floating), how many hits it takes to break a carpet, and what it drops when broken.
-- Flight speed can now go from half to ten times a Happy Ghast.
-- On servers, the server's flight speed now always applies, whatever each player has set.
-- The settings screen is split into pages, and every setting explains itself when you hover over it.
-- Settings button in Mod Menu (Fabric) and the Mods list (NeoForge).
-- Carpets are in the creative menu under Tools & Utilities.
-- Middle-click a carpet in creative to get its item.
-- Translations: German, Dutch, French, Spanish, Polish, Russian, Chinese (Simplified) and Japanese.
+- **Minecraft 26.3.** Updated to the full release.
+- **NeoForge support.** The mod now runs on NeoForge as well as Fabric.
+- **Flight info.** While riding, the top-left corner shows speed, height and what happens if you get off.
+- **Pick up carpets.** Hold sneak and right-click an empty carpet to put it back in your inventory.
+- **Getting off mid-air.** Choose whether the carpet becomes a cushion, drops as a carpet, or keeps floating.
+- **Breaking.** Set how many hits a carpet takes and what it drops.
+- **Wider speed range.** Flight speed now goes from half to ten times a Happy Ghast.
+- **Server speed applies.** On a server, everyone flies at the server's speed setting.
+- **New settings screen.** Split into pages, with an explanation when you hover over each setting. Also opens from Mod Menu and the NeoForge Mods list.
+- **Creative menu.** Carpets are listed under Tools & Utilities, and middle-click picks them.
+- **Translations.** German, Dutch, French, Spanish, Polish, Russian, Chinese (Simplified) and Japanese.

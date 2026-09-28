@@ -48,9 +48,7 @@ public class FlyingCarpetRecipe extends CustomRecipe {
     public boolean matches(final CraftingInput input, final Level level) {
         FlyingCarpetConfig cfg = FlyingCarpetConfig.get();
 
-        // Mutable multiset of the required rod ingredients. Blank slots mean "no
-        // ingredient"; unparseable/unknown ids are skipped rather than bricking the
-        // recipe. With all three blank, 3 matching cushions alone craft a carpet.
+        // Blank, malformed or unknown ids are skipped so a typo can't disable the recipe.
         List<Item> neededRods = new ArrayList<>();
         for (String idStr : cfg.rodSlots()) {
             if (idStr == null || idStr.isBlank()) {
@@ -84,7 +82,6 @@ public class FlyingCarpetRecipe extends CustomRecipe {
                     return false;
                 }
             } else if (!neededRods.remove(stack.getItem())) {
-                // A non-cushion item that isn't one of the required rods -> no match.
                 return false;
             }
         }

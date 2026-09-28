@@ -40,7 +40,7 @@ import org.jspecify.annotations.Nullable;
  */
 public class FlyingCarpetEntity extends Mob {
 
-    // Happy Ghast baseline FLYING_SPEED is 0.05; we multiply by the config value.
+    /** The Happy Ghast's flying speed. */
     private static final double GHAST_FLYING_SPEED = 0.05D;
 
     private static final EntityDataAccessor<DyeColor> DATA_COLOR =
@@ -227,13 +227,8 @@ public class FlyingCarpetEntity extends Mob {
     private transient long lastSneakTick = Long.MIN_VALUE;
 
     /**
-     * Called (server-side, while the rider is sneaking) to decide whether the
-     * sneak should actually dismount. Returns {@code true} only on a confirming
-     * second sneak within the window; the first sneak just arms the prompt.
-     *
-     * <p>Edge detection: this is polled every tick the sneak key is held, so we
-     * treat a gap of &gt;1 tick since the last call as a fresh key press (the
-     * player released and pressed sneak again).</p>
+     * Server-side, polled every tick the rider holds sneak. Returns true only on a second
+     * press within the confirm window; a gap of more than one tick counts as a new press.
      */
     public boolean tryConfirmDismount(final Player rider) {
         long now = this.level().getGameTime();
@@ -248,7 +243,6 @@ public class FlyingCarpetEntity extends Mob {
             return false; // still holding the first press
         }
 
-        // Arm a new confirmation attempt and prompt the rider.
         this.awaitingConfirm = true;
         this.confirmDeadline = now + FlyingCarpetConfig.get().confirmTicks();
         if (rider instanceof ServerPlayer serverPlayer) {

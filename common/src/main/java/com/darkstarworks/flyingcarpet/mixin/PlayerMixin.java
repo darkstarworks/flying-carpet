@@ -9,12 +9,7 @@ import net.minecraft.world.entity.player.Player;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
-/**
- * Gates the sneak-to-dismount check inside {@link Player#rideTick()} so that
- * dismounting a Flying Carpet requires a confirming second sneak. We wrap the
- * {@code wantsToStopRiding()} call (a Player-declared method, so the target is
- * unambiguous) only within {@code rideTick}, leaving all other vehicles vanilla.
- */
+/** Makes getting off a Flying Carpet need a second sneak. Other vehicles are untouched. */
 @Mixin(Player.class)
 public abstract class PlayerMixin {
 

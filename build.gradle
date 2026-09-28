@@ -30,3 +30,10 @@ subprojects {
         options.compilerArgs << '-Xlint:deprecation'
     }
 }
+
+// The newest `## [` section of CHANGELOG.md, used as the Modrinth changelog.
+ext.latestChangelog = {
+    def text = rootProject.file('CHANGELOG.md').text
+    def sections = text.split(/(?m)^(?=## \[)/).findAll { it.startsWith('## [') }
+    return sections ? sections[0].readLines().drop(1).join('\n').trim() : ''
+}

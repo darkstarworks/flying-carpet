@@ -18,12 +18,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3;
 
-/**
- * Colored Flying Carpet item (one instance per DyeColor). Mirrors vanilla
- * {@code CushionItem}: right-click the top face of a block to place the flying
- * carpet entity in this item's color. Carries an enchantment glint (set on its
- * Item.Properties at registration).
- */
+/** One item per color. Right-click the top of a block to place a carpet of that color. */
 public class FlyingCarpetItem extends Item {
 
     private final DyeColor color;
