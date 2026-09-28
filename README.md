@@ -45,4 +45,4 @@ The mod must be installed on both the server and every player's game.
 
 ## Languages
 
-English, German, Dutch, French and Spanish.
+English, German, Dutch, French, Spanish, Polish, Russian, Chinese (Simplified) and Japanese.

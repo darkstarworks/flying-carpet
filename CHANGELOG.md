@@ -11,4 +11,4 @@
 - Settings button in Mod Menu (Fabric) and the Mods list (NeoForge).
 - Carpets are in the creative menu under Tools & Utilities.
 - Middle-click a carpet in creative to get its item.
-- Translations: German, Dutch, French and Spanish.
+- Translations: German, Dutch, French, Spanish, Polish, Russian, Chinese (Simplified) and Japanese.
