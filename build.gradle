@@ -1,13 +1,32 @@
-// Root project: no loader plugin here. Each loader module (fabric/, and the
-// dormant neoforge/) applies its own build plugin and compiles the shared source
-// from common/ alongside its loader-specific code.
+// Root project: no loader plugin here. Each loader module applies its own build
+// plugin and compiles the shared code and resources from common/.
 //
-// common/ is a plain shared-source folder (not a Gradle module). Every loader
-// module adds ../common/src/main/java to its source set, so the loader-agnostic
-// code is compiled once per loader against that loader's Minecraft — no cross-jar
-// bundling required.
+// common/ is a plain shared-source folder (not a Gradle module), so the
+// loader-agnostic code is compiled once per loader against that loader's Minecraft.
 
 allprojects {
     group = project.maven_group
     version = project.mod_version
+}
+
+subprojects {
+    apply plugin: 'java'
+
+    java {
+        toolchain.languageVersion = JavaLanguageVersion.of(25)
+        withSourcesJar()
+    }
+
+    sourceSets {
+        main {
+            java.srcDir rootProject.file('common/src/main/java')
+            resources.srcDir rootProject.file('common/src/main/resources')
+        }
+    }
+
+    tasks.withType(JavaCompile).configureEach {
+        options.release = 25
+        options.encoding = 'UTF-8'
+        options.compilerArgs << '-Xlint:deprecation'
+    }
 }

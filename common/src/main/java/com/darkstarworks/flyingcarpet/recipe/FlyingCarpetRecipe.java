@@ -21,16 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Shapeless, config-driven Flying Carpet recipe.
- *
- * <p>Requires exactly <b>3 cushions</b> plus the three configured "rod" ingredients
- * (default breeze/blaze/breeze). If {@code enforceColorMatch} is on, the three
- * cushions must share a color, and the resulting carpet takes that color. The
- * arrangement in the grid does not matter — only the set of ingredients — which
- * matches the "I don't care how they got the cushions" intent and avoids brittle
- * positional assumptions.</p>
- */
+/** Shapeless recipe: three cushions plus the configured extra ingredients, in any arrangement. */
 public class FlyingCarpetRecipe extends CustomRecipe {
 
     public static final MapCodec<FlyingCarpetRecipe> MAP_CODEC = MapCodec.unit(FlyingCarpetRecipe::new);

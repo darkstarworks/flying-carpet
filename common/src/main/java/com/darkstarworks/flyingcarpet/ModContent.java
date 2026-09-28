@@ -19,12 +19,9 @@ import java.util.EnumMap;
 import java.util.Map;
 
 /**
- * Loader-agnostic content and registration.
- *
- * <p>Everything here uses only vanilla registries/APIs, so it compiles and runs
- * identically under any loader. Each loader's entrypoint provides {@link #CONFIG_DIR}
- * and calls {@link #registerContent()}; loader-specific glue (attributes, entity
- * renderer, keybind, commands) lives in the per-loader modules.</p>
+ * Loader-agnostic content, registered straight into the vanilla registries.
+ * Fabric calls every register method at startup; NeoForge calls each one from the
+ * matching registry event.
  */
 public final class ModContent {
 
@@ -46,8 +43,13 @@ public final class ModContent {
 
     public static final Map<DyeColor, Item> CARPET_ITEMS = new EnumMap<>(DyeColor.class);
 
-    /** Registers the entity type, 16 colored glint items, and the recipe serializer. */
-    public static void registerContent() {
+    public static void registerAll() {
+        registerEntities();
+        registerItems();
+        registerRecipeSerializers();
+    }
+
+    public static void registerEntities() {
         FLYING_CARPET = Registry.register(
             BuiltInRegistries.ENTITY_TYPE,
             FLYING_CARPET_KEY,
@@ -57,7 +59,9 @@ public final class ModContent {
                 .clientTrackingRange(10)
                 .build(FLYING_CARPET_KEY)
         );
+    }
 
+    public static void registerItems() {
         for (DyeColor color : DyeColor.values()) {
             ResourceKey<Item> itemKey = ResourceKey.create(Registries.ITEM, id(color.getName() + "_flying_carpet"));
             Item item = Registry.register(
@@ -72,7 +76,9 @@ public final class ModContent {
             );
             CARPET_ITEMS.put(color, item);
         }
+    }
 
+    public static void registerRecipeSerializers() {
         Registry.register(BuiltInRegistries.RECIPE_SERIALIZER, id("flying_carpet"), FlyingCarpetRecipe.SERIALIZER);
     }
 }

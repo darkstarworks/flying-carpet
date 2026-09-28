@@ -3,13 +3,13 @@
   "id": "flyingcarpet",
   "version": "${version}",
   "name": "Flying Carpet",
-  "description": "Craft matching Cushions into a rideable, enchanted Flying Carpet that flies faster than a Happy Ghast. Sneak on solid ground to keep the carpet; sneak in the air and you drop like a stone.",
+  "description": "A rideable, enchanted Flying Carpet made from three matching Cushions. Flies faster than a Happy Ghast, with an on-screen flight panel and a settings screen for speed, getting off, breaking and the recipe.",
   "authors": [
     "darkstarworks"
   ],
   "contact": {
-    "homepage": "",
-    "sources": ""
+    "homepage": "https://modrinth.com/mod/flying-carpet",
+    "issues": "https://modrinth.com/mod/flying-carpet"
   },
   "license": "ARR",
   "icon": "assets/flyingcarpet/icon.png",
@@ -20,19 +20,21 @@
     ],
     "client": [
       "com.darkstarworks.flyingcarpet.client.FlyingCarpetClient"
+    ],
+    "modmenu": [
+      "com.darkstarworks.flyingcarpet.client.ModMenuIntegration"
     ]
   },
   "mixins": [
-    "flyingcarpet.mixins.json",
-    {
-      "config": "flyingcarpet.client.mixins.json",
-      "environment": "client"
-    }
+    "flyingcarpet.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=0.19.5",
     "minecraft": "~26.3-",
     "java": ">=25",
     "fabric-api": "*"
+  },
+  "suggests": {
+    "modmenu": "*"
   }
 }

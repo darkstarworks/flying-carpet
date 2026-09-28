@@ -1,5 +1,6 @@
 package com.darkstarworks.flyingcarpet.entity;
 
+import com.darkstarworks.flyingcarpet.ModContent;
 import com.darkstarworks.flyingcarpet.config.FlyingCarpetConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -9,6 +10,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
+import net.minecraft.util.Prediction;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -19,7 +21,11 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec2;
@@ -29,12 +35,8 @@ import net.minecraft.world.level.storage.ValueOutput;
 import org.jspecify.annotations.Nullable;
 
 /**
- * The Flying Carpet ride entity. Parked when landed, flies when a player mounts.
- *
- * <p>Flight overrides ({@link #travel}, {@link #getRiddenInput}, {@link #getControllingPassenger})
- * mirror the vanilla Happy Ghast, but the "is controlled" condition is simply
- * "a player is riding" (no harness needed), and the speed is scaled by the
- * config's {@code flightSpeedMultiplier} so it flies faster than a Happy Ghast.</p>
+ * The Flying Carpet ride entity. Parked when landed, flies like a Happy Ghast
+ * (no harness needed) when a player mounts.
  */
 public class FlyingCarpetEntity extends Mob {
 
@@ -43,6 +45,19 @@ public class FlyingCarpetEntity extends Mob {
 
     private static final EntityDataAccessor<DyeColor> DATA_COLOR =
         SynchedEntityData.defineId(FlyingCarpetEntity.class, EntityDataSerializers.DYE_COLOR);
+    // The server's speed setting, synced so the rider's client (which runs the movement)
+    // can't fly faster or slower than the server allows.
+    private static final EntityDataAccessor<Float> DATA_SPEED =
+        SynchedEntityData.defineId(FlyingCarpetEntity.class, EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Byte> DATA_DISMOUNT_OUTCOME =
+        SynchedEntityData.defineId(FlyingCarpetEntity.class, EntityDataSerializers.BYTE);
+
+    /** What happens if the rider gets off right now. */
+    public enum DismountOutcome { KEEP, DROP_CUSHION, DROP_CARPET, HOVER }
+
+    private static final long HIT_RESET_TICKS = 100L;
+    private int hits;
+    private long lastHitTick;
 
     public FlyingCarpetEntity(final EntityType<? extends FlyingCarpetEntity> type, final Level level) {
         super(type, level);
@@ -50,9 +65,7 @@ public class FlyingCarpetEntity extends Mob {
     }
 
     public static AttributeSupplier.Builder createAttributes() {
-        // Base attribute stays at the Happy Ghast value; the config multiplier is
-        // applied LIVE in the flight math (see flightSpeed()) so changing it in the
-        // settings screen takes effect immediately without a restart or re-register.
+        // The config multiplier is applied live in flightSpeed(), not baked in here.
         return Mob.createMobAttributes()
             .add(Attributes.MAX_HEALTH, 8.0)
             .add(Attributes.FLYING_SPEED, GHAST_FLYING_SPEED)
@@ -61,9 +74,37 @@ public class FlyingCarpetEntity extends Mob {
             .add(Attributes.CAMERA_DISTANCE, 8.0);
     }
 
-    /** Effective flying speed = base attribute × the live config multiplier. */
     private double flightSpeed() {
-        return this.getAttributeValue(Attributes.FLYING_SPEED) * FlyingCarpetConfig.get().flightSpeedMultiplier;
+        return this.getAttributeValue(Attributes.FLYING_SPEED) * this.entityData.get(DATA_SPEED);
+    }
+
+    public DismountOutcome getDismountOutcome() {
+        byte b = this.entityData.get(DATA_DISMOUNT_OUTCOME);
+        DismountOutcome[] values = DismountOutcome.values();
+        return b >= 0 && b < values.length ? values[b] : DismountOutcome.KEEP;
+    }
+
+    private DismountOutcome computeDismountOutcome() {
+        FlyingCarpetConfig cfg = FlyingCarpetConfig.get();
+        if (cfg.safeRevertEnabled && this.hasSolidGroundWithin(cfg.safeDistance)) {
+            return DismountOutcome.KEEP;
+        }
+        return switch (cfg.airDismount) {
+            case DROP_CUSHION -> DismountOutcome.DROP_CUSHION;
+            case DROP_CARPET -> DismountOutcome.DROP_CARPET;
+            case HOVER -> DismountOutcome.HOVER;
+        };
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+        if (!this.level().isClientSide()) {
+            this.entityData.set(DATA_SPEED, (float) FlyingCarpetConfig.get().flightSpeedMultiplier);
+            if (this.isVehicle()) {
+                this.entityData.set(DATA_DISMOUNT_OUTCOME, (byte) this.computeDismountOutcome().ordinal());
+            }
+        }
     }
 
     public DyeColor getColor() {
@@ -78,22 +119,35 @@ public class FlyingCarpetEntity extends Mob {
     protected void defineSynchedData(final SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
         builder.define(DATA_COLOR, DyeColor.WHITE);
+        builder.define(DATA_SPEED, 1.5F);
+        builder.define(DATA_DISMOUNT_OUTCOME, (byte) 0);
     }
 
-    // ---- Riding: sit by mounting, sneak handled in dismount task ----------
+    // ---- Riding and picking up -------------------------------------------
 
     @Override
     public InteractionResult mobInteract(final Player player, final InteractionHand hand) {
-        if (!player.isSecondaryUseActive() && !this.isVehicle()) {
+        if (this.isVehicle()) {
+            return InteractionResult.PASS;
+        }
+        if (!player.isSecondaryUseActive()) {
             if (!this.level().isClientSide()) {
                 player.startRiding(this);
+            }
+            return InteractionResult.SUCCESS;
+        }
+        if (FlyingCarpetConfig.get().sneakPickup) {
+            if (this.level() instanceof ServerLevel) {
+                player.getInventory().placeItemBackInInventory(this.carpetItem(), Prediction.SERVER_ONLY);
+                this.playSound(SoundEvents.ITEM_PICKUP, 0.5F, 1.0F);
+                this.discard();
             }
             return InteractionResult.SUCCESS;
         }
         return InteractionResult.PASS;
     }
 
-    // ---- Flight controls (verified against HappyGhast 26.3) ----------------
+    // ---- Flight controls ---------------------------------------------------
 
     @Override
     public void travel(final Vec3 input) {
@@ -131,12 +185,7 @@ public class FlyingCarpetEntity extends Mob {
         return new Vec2(controller.getXRot() * 0.5F, controller.getYRot());
     }
 
-    /**
-     * Applies steering: eases the carpet's yaw toward the rider's view yaw (and
-     * pitch toward half the rider's pitch) at 8% per tick — the same smooth
-     * "look-to-turn" feel as a Happy Ghast. Without this override the default
-     * {@code Mob.tickRidden} is empty and the carpet never turns.
-     */
+    /** Eases the carpet's yaw toward where the rider looks. Mob.tickRidden alone never turns it. */
     @Override
     protected void tickRidden(final Player controller, final Vec3 riddenInput) {
         super.tickRidden(controller, riddenInput);
@@ -152,7 +201,6 @@ public class FlyingCarpetEntity extends Mob {
 
     @Override
     protected void checkFallDamage(final double ya, final boolean onGround, final net.minecraft.world.level.block.state.BlockState onState, final BlockPos pos) {
-        // Never take fall damage — it's a carpet.
     }
 
     @Override
@@ -202,58 +250,82 @@ public class FlyingCarpetEntity extends Mob {
 
         // Arm a new confirmation attempt and prompt the rider.
         this.awaitingConfirm = true;
-        this.confirmDeadline = now + FlyingCarpetConfig.get().confirmWindowTicks;
+        this.confirmDeadline = now + FlyingCarpetConfig.get().confirmTicks();
         if (rider instanceof ServerPlayer serverPlayer) {
-            serverPlayer.sendSystemMessage(
-                Component.literal("Sneak again to drop the Flying Carpet"), true);
+            String key = this.computeDismountOutcome() == DismountOutcome.KEEP
+                ? "message.flyingcarpet.confirm_land"
+                : "message.flyingcarpet.confirm_air";
+            serverPlayer.sendSystemMessage(Component.translatable(key), true);
         }
         return false;
     }
 
-    // ---- Dismount / break: safe-revert vs plain-cushion drop --------------
+    // ---- Getting off and breaking ----------------------------------------
 
-    /**
-     * Sneak-dismount branching:
-     * <ul>
-     *   <li><b>Safe</b> (solid ground within {@code safeDistance} below, and
-     *       revert enabled): the carpet stays parked as a Flying Carpet — we do
-     *       nothing, the entity persists and can be re-mounted.</li>
-     *   <li><b>Air / unsafe</b>: the carpet is "dropped" — the entity is removed
-     *       and a plain (non-enchanted) cushion of the matching color drops. The
-     *       player falls, because the carpet has no solid platform on top.</li>
-     * </ul>
-     */
     @Override
     protected void removePassenger(final Entity passenger) {
         super.removePassenger(passenger);
-        if (this.level().isClientSide() || this.getRemovalReason() != null) {
+        if (this.getRemovalReason() != null || !(this.level() instanceof ServerLevel serverLevel)) {
             return;
         }
-        FlyingCarpetConfig cfg = FlyingCarpetConfig.get();
-        boolean safe = cfg.safeRevertEnabled && this.hasSolidGroundWithin(cfg.safeDistance);
-        if (!safe && this.level() instanceof ServerLevel serverLevel) {
-            this.dropPlainCushion(serverLevel);
-            this.discard();
+        switch (this.computeDismountOutcome()) {
+            case KEEP, HOVER -> { }
+            case DROP_CUSHION -> {
+                this.spawnAtLocation(serverLevel, this.plainCushion());
+                this.discard();
+            }
+            case DROP_CARPET -> {
+                this.spawnAtLocation(serverLevel, this.carpetItem());
+                this.discard();
+            }
         }
     }
 
-    /** Breaking the carpet (any lethal-ish hit) drops it as a plain cushion. */
     @Override
     public boolean hurtServer(final ServerLevel level, final DamageSource source, final float damage) {
-        boolean result = super.hurtServer(level, source, damage);
-        if (this.isAlive() && !this.isRemoved()) {
-            this.dropPlainCushion(level);
-            this.discard();
+        if (this.isRemoved() || this.isInvulnerableToBase(source)) {
+            return false;
         }
-        return result;
+        long now = level.getGameTime();
+        if (now - this.lastHitTick > HIT_RESET_TICKS) {
+            this.hits = 0;
+        }
+        this.lastHitTick = now;
+        this.hits++;
+
+        boolean creative = source.getEntity() instanceof Player player && player.isCreative();
+        if (!creative && this.hits < FlyingCarpetConfig.get().hitsToBreak) {
+            this.hurtTime = 10;
+            this.playSound(SoundEvents.WOOL_HIT, 1.0F, 1.0F);
+            return true;
+        }
+
+        if (!creative) {
+            switch (FlyingCarpetConfig.get().breakDrop) {
+                case CUSHION -> this.spawnAtLocation(level, this.plainCushion());
+                case CARPET -> this.spawnAtLocation(level, this.carpetItem());
+                case NOTHING -> { }
+            }
+        }
+        level.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.WOOL_BREAK, SoundSource.NEUTRAL, 1.0F, 1.0F);
+        this.discard();
+        return true;
     }
 
-    private void dropPlainCushion(final ServerLevel level) {
-        // Plain cushion of the matching color — loses the enchanted "carpet" upgrade.
-        this.spawnAtLocation(level, Items.CUSHION.pick(this.getColor()));
+    private ItemStack plainCushion() {
+        return new ItemStack(Items.CUSHION.pick(this.getColor()));
     }
 
-    /** True if any block with a non-empty collision shape sits within {@code distance} below. */
+    private ItemStack carpetItem() {
+        Item item = ModContent.CARPET_ITEMS.get(this.getColor());
+        return item != null ? new ItemStack(item) : this.plainCushion();
+    }
+
+    @Override
+    public ItemStack getPickResult() {
+        return this.carpetItem();
+    }
+
     private boolean hasSolidGroundWithin(final double distance) {
         BlockPos base = this.blockPosition();
         int steps = (int) Math.ceil(distance);

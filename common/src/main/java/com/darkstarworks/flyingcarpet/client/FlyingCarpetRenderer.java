@@ -18,11 +18,7 @@ import net.minecraft.world.item.DyeColor;
 
 import java.util.EnumMap;
 
-/**
- * Renders the Flying Carpet by reusing the vanilla Cushion model, render state,
- * and per-color cushion textures — so in-world it looks like a cushion of its
- * color. The enchanted glint is intentionally only on the item form (as designed).
- */
+/** Draws the carpet with the vanilla cushion model and texture of its color. The glint is item-only. */
 public class FlyingCarpetRenderer extends EntityRenderer<FlyingCarpetEntity, CushionRenderState> {
 
     private static final EnumMap<DyeColor, Identifier> TEXTURES_BY_COLOR = Util.make(new EnumMap<>(DyeColor.class), textures -> {

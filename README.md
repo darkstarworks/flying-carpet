@@ -1,17 +1,48 @@
-<h1><strong><span style="color: #ecf0f1;">Flying Carpet</span><br></strong></h1>
-<p><span style="color: #7e8c8d;"><em>(Fabric API - 26.3 snapshot release)</em></span></p>
-<p><span style="color: #7e8c8d;"><em><img style="display: block; margin-left: auto; margin-right: auto;" src="https://media.forgecdn.net/attachments/description/1603218/description_48e96cd7-e2c7-47d5-8152-5d15d9d08608.png" alt="flying carpet" width="849" height="280"></em></span></p>
-<p><span style="color: #ecf0f1;">Turn an ordinary cushion into a magical flying carpet you can ride through the skies.</span></p>
-<p><span style="color: #ecf0f1;">Combine three matching-colored cushions with a few extra ingredients, and you'll get a shimmering, enchanted carpet in that same color. Place it down, hop on with a right-click, and off you go!</span></p>
-<p><span style="color: #ecf0f1;">It flies just like a Happy Ghast, but faster. Steer by looking where you want to go, and it gracefully banks and turns to follow your gaze.</span></p>
-<p><span style="color: #ecf0f1;">When you want to get off, crouch once and it'll ask you to confirm. Crouch again and you'll hop off. </span><br><span style="color: #ecf0f1;">Land somewhere safe and the carpet politely waits for you to ride again.</span></p>
-<p><span style="color: #ecf0f1;">But bail out in mid-air and the magic gives out! The carpet drops back down as a plain cushion, and so do you. Break it while it's out and it also reverts to an ordinary cushion, so you'll need to re-craft it to take flight again.</span></p>
-<p><span style="color: #ecf0f1;">It comes in all 16 colors, and a simple in-game settings menu lets you tweak how fast it flies, how forgiving the landing check is, and even what it takes to craft one.</span></p>
-<p><strong><span style="color: #ecf0f1;">Short video:</span><br></strong><br>
-  
-https://github.com/user-attachments/assets/84a5f9d4-c5b0-470f-8d88-577fec047f02
+# Flying Carpet
 
-</p>
-<p><span style="color: #ecf0f1;">Type<strong>&nbsp;<span style="color: #95a5a6;"><code>/flyingcarpet</code></span> </strong>or<strong> <span style="color: #95a5a6;"><code>/fc</code></span>&nbsp;</strong>to open the settings:</span></p>
-<p><img src="https://media.forgecdn.net/attachments/description/null/description_eef18a54-5985-476f-a248-f9f96684236c.png" width="519" height="400"></p>
-<p><span style="color: #ecf0f1;">Or you can set a <strong>keybind</strong> to open it</span></p>
+Turn three Cushions into a rideable, enchanted **Flying Carpet** that flies faster than a Happy Ghast. No harness, no saddle: place it, right-click it, and take off.
+
+## How to get one
+
+Put **three Cushions** in a crafting table together with a **Breeze Rod, a Blaze Rod and another Breeze Rod**. Where you put them in the grid doesn't matter. By default the three cushions must be the same color, and the carpet comes out in that color. All 16 colors are also in the creative menu, under Tools & Utilities.
+
+Server owners can change the extra ingredients, or remove them so three cushions are enough.
+
+## How to fly
+
+- **Place it:** right-click the top of any block with the carpet in your hand.
+- **Get on:** right-click the carpet.
+- **Steer:** look where you want to go and hold forward. Look up to climb, look down to dive. Hold jump to rise straight up.
+- **Get off:** press sneak twice (the first press only shows a warning, so you don't fall by accident).
+- **Pick it up:** hold sneak and right-click a carpet nobody is riding. It goes back into your inventory.
+
+## Landing vs. getting off in the air
+
+If there is solid ground close below you when you get off, the carpet stays where it is so you can ride it again later.
+
+If you get off high in the air, you fall. By default the carpet turns back into a plain cushion, but the server can choose to have it drop as a Flying Carpet or keep floating instead.
+
+While riding, a small panel in the top-left corner shows your speed, your height, and **what will happen if you get off right now**, so you always know if it's safe.
+
+## Settings
+
+Open the settings with `/flyingcarpet` (or `/fc`), from Mod Menu on Fabric, from the Mods list on NeoForge, or with a key you pick under Controls.
+
+- **Flying:** flight speed (from half to ten times a Happy Ghast) and whether to show the flight panel.
+- **Getting Off:** sneak twice or once, how long you have for the second press, whether landing keeps the carpet, how close counts as "landing", and what happens when you get off mid-air.
+- **Breaking:** how many hits it takes to break a carpet, what it drops (a cushion, the carpet itself, or nothing), and whether sneak + right-click picks it up.
+- **Recipe:** whether the cushions must match, and the three extra ingredients.
+
+Hover over any setting to see what it does. On a server, the server's settings decide how carpets behave. Your own settings are used in single-player worlds.
+
+## Requirements
+
+- Minecraft 26.3
+- **Fabric:** Fabric API. Mod Menu is optional.
+- **NeoForge:** nothing else needed.
+
+The mod must be installed on both the server and every player's game.
+
+## Languages
+
+English, German, Dutch, French and Spanish.

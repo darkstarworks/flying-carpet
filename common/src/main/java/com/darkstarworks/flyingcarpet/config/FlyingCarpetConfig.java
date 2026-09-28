@@ -10,54 +10,57 @@ import java.nio.file.Path;
 import java.util.List;
 
 /**
- * Dependency-free JSON config. Lives at {@code config/flyingcarpet.json}.
- *
- * <p>Source of truth for both the settings {@code Screen} (which reads/writes this
- * object) and gameplay code. No third-party config mods are used — just Gson, which
- * is already bundled with Minecraft.</p>
+ * JSON config at {@code config/flyingcarpet.json}, shared by the settings screen and
+ * gameplay code. On a server, the server's copy decides how carpets behave.
  */
 public class FlyingCarpetConfig {
 
-    // ---- Recipe (server-economy customizable) -----------------------------
-    /** If true, the three cushions in the top row must all be the same color. */
+    /** What happens to the carpet when the rider gets off with no ground close below. */
+    public enum AirDismount {
+        /** The carpet turns back into a plain cushion and drops. */
+        DROP_CUSHION,
+        /** The carpet drops as a Flying Carpet item, nothing is lost. */
+        DROP_CARPET,
+        /** The carpet stays floating where it was. */
+        HOVER
+    }
+
+    /** What a carpet drops when it is broken by hitting it. */
+    public enum BreakDrop {
+        CUSHION,
+        CARPET,
+        NOTHING
+    }
+
+    // ---- Recipe ------------------------------------------------------------
     public boolean enforceColorMatch = true;
-    /** Item id used in the middle-left slot. Default: breeze rod. */
     public String recipeLeftSlot = "minecraft:breeze_rod";
-    /** Item id used in the middle-center slot. Default: blaze rod. */
     public String recipeCenterSlot = "minecraft:blaze_rod";
-    /** Item id used in the middle-right slot. Default: breeze rod. */
     public String recipeRightSlot = "minecraft:breeze_rod";
 
-    // ---- Flight -----------------------------------------------------------
-    /** Allowed range for {@link #flightSpeedMultiplier} (also drives the settings slider). */
-    public static final double SPEED_MIN = 1.0D;
-    public static final double SPEED_MAX = 5.0D;
+    // ---- Flight ------------------------------------------------------------
+    public static final double SPEED_MIN = 0.5D;
+    public static final double SPEED_MAX = 10.0D;
 
-    /**
-     * Flight speed as a multiple of the Happy Ghast's speed. Default 1.5 = 50%
-     * faster than a Happy Ghast. Clamped to [{@link #SPEED_MIN}, {@link #SPEED_MAX}].
-     */
+    /** Flight speed as a multiple of the Happy Ghast's speed. */
     public double flightSpeedMultiplier = 1.5D;
+    public boolean showHud = true;
 
-    // ---- Dismount ---------------------------------------------------------
-    /**
-     * If true, sneak-dismounting with solid ground within {@link #safeDistance}
-     * blocks below reverts the entity to a placed Flying Carpet block (keeps the
-     * enchanted carpet). Otherwise every dismount drops a plain cushion.
-     */
+    // ---- Getting off -------------------------------------------------------
+    /** Keep the carpet (parked) when getting off with solid ground within {@link #safeDistance}. */
     public boolean safeRevertEnabled = true;
-    /** How many blocks below counts as "safe" for a revert. */
     public double safeDistance = 2.0D;
-    /**
-     * If true, sneaking to dismount requires a confirming second sneak (with an
-     * action-bar prompt) so you don't fall off by accident. If false, a single
-     * sneak dismounts immediately (vanilla behavior).
-     */
+    public AirDismount airDismount = AirDismount.DROP_CUSHION;
     public boolean confirmDismount = true;
-    /** Ticks the confirmation window stays open after the first sneak. */
-    public int confirmWindowTicks = 60;
+    public double confirmSeconds = 3.0D;
 
-    // -----------------------------------------------------------------------
+    // ---- Breaking ----------------------------------------------------------
+    public int hitsToBreak = 1;
+    public BreakDrop breakDrop = BreakDrop.CUSHION;
+    /** Sneak + right-click an empty carpet to pick it up as an item. */
+    public boolean sneakPickup = true;
+
+    // ------------------------------------------------------------------------
 
     private static final String FILE_NAME = "flyingcarpet.json";
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
@@ -72,22 +75,20 @@ public class FlyingCarpetConfig {
     }
 
     private static Path path() {
-        // CONFIG_DIR is provided by the active loader's entrypoint before load().
         return ModContent.CONFIG_DIR.resolve(FILE_NAME);
     }
 
     public static FlyingCarpetConfig load() {
         Path p = path();
-        FlyingCarpetConfig cfg;
+        FlyingCarpetConfig cfg = null;
         if (Files.exists(p)) {
             try {
                 cfg = GSON.fromJson(Files.readString(p), FlyingCarpetConfig.class);
-                if (cfg == null) cfg = new FlyingCarpetConfig();
             } catch (IOException | RuntimeException e) {
-                // Corrupt or unreadable — fall back to defaults rather than crash.
-                cfg = new FlyingCarpetConfig();
+                // Corrupt or unreadable: fall back to defaults rather than crash.
             }
-        } else {
+        }
+        if (cfg == null) {
             cfg = new FlyingCarpetConfig();
         }
         cfg.clamp();
@@ -106,21 +107,25 @@ public class FlyingCarpetConfig {
         }
     }
 
-    /** Keep values inside ranges that won't break gameplay. */
     public void clamp() {
-        if (flightSpeedMultiplier < SPEED_MIN) flightSpeedMultiplier = SPEED_MIN;
-        if (flightSpeedMultiplier > SPEED_MAX) flightSpeedMultiplier = SPEED_MAX;
-        if (safeDistance < 0.0D) safeDistance = 0.0D;
-        if (safeDistance > 32.0D) safeDistance = 32.0D;
-        // Blank is allowed and means "no ingredient in this slot" — a server owner
-        // can make the recipe cheaper (down to just 3 cushions). Only guard against
-        // null so the JSON round-trips cleanly.
+        flightSpeedMultiplier = Math.clamp(flightSpeedMultiplier, SPEED_MIN, SPEED_MAX);
+        safeDistance = Math.clamp(safeDistance, 0.0D, 32.0D);
+        confirmSeconds = Math.clamp(confirmSeconds, 0.5D, 30.0D);
+        hitsToBreak = Math.clamp(hitsToBreak, 1, 50);
+        // Gson leaves unknown enum names as null.
+        if (airDismount == null) airDismount = AirDismount.DROP_CUSHION;
+        if (breakDrop == null) breakDrop = BreakDrop.CUSHION;
+        // Blank means "no ingredient in this slot".
         if (recipeLeftSlot == null) recipeLeftSlot = "";
         if (recipeCenterSlot == null) recipeCenterSlot = "";
         if (recipeRightSlot == null) recipeRightSlot = "";
     }
 
-    /** The three middle-row rod ingredient ids, left to right. */
+    public int confirmTicks() {
+        return (int) Math.round(confirmSeconds * 20.0D);
+    }
+
+    /** The three middle-row ingredient ids, left to right. */
     public List<String> rodSlots() {
         return List.of(recipeLeftSlot, recipeCenterSlot, recipeRightSlot);
     }
