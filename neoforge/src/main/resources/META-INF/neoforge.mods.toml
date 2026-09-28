@@ -9,7 +9,8 @@ version = "${version}"
 displayName = "Flying Carpet"
 authors = "darkstarworks"
 displayURL = "https://modrinth.com/mod/flying-carpet"
-logoFile = "assets/flyingcarpet/icon.png"
+iconFile = "assets/flyingcarpet/icon.png"
+bannerFile = "assets/flyingcarpet/banner.png"
 description = '''
 A rideable, enchanted Flying Carpet made from three matching Cushions. Flies faster than a Happy Ghast, with an on-screen flight panel and a settings screen for speed, getting off, breaking and the recipe.
 '''
