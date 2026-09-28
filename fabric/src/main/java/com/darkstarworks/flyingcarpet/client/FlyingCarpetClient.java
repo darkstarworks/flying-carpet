@@ -7,7 +7,7 @@ import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallba
 import net.fabricmc.fabric.api.client.command.v2.ClientCommands;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
-import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
+import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 
@@ -22,7 +22,7 @@ public class FlyingCarpetClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-        EntityRendererRegistry.register(ModContent.FLYING_CARPET, FlyingCarpetRenderer::new);
+        EntityRenderers.register(ModContent.FLYING_CARPET, FlyingCarpetRenderer::new);
 
         // Unbound by default (players bind it in vanilla Controls if they want it).
         openConfigKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
