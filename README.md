@@ -4,6 +4,8 @@ Craft three Cushions into a Flying Carpet you can ride through the air.
 
 The carpet flies like a Happy Ghast, but faster, and needs no harness. It comes in all 16 cushion colors.
 
+Short video: https://github.com/user-attachments/assets/84a5f9d4-c5b0-470f-8d88-577fec047f02
+
 ## Craft a carpet
 
 1. Put three Cushions of the same color in a crafting table.

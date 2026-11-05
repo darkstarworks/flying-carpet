@@ -1,3 +1,7 @@
+## [0.2.1] - 2026-11-05
+
+- **NeoForge fix.** Worlds and servers no longer fail to load with a "Failed to encode packet" error while joining.
+
 ## [0.2.0] - 2026-09-28
 
 - **Minecraft 26.3.** Updated to the full release.
