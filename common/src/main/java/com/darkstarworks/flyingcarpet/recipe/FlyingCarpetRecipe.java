@@ -24,9 +24,11 @@ import java.util.Map;
 /** Shapeless recipe: three cushions plus the configured extra ingredients, in any arrangement. */
 public class FlyingCarpetRecipe extends CustomRecipe {
 
-    public static final MapCodec<FlyingCarpetRecipe> MAP_CODEC = MapCodec.unit(FlyingCarpetRecipe::new);
+    /** Stateless, so one shared instance; StreamCodec.unit refuses to encode any other. */
+    public static final FlyingCarpetRecipe INSTANCE = new FlyingCarpetRecipe();
+    public static final MapCodec<FlyingCarpetRecipe> MAP_CODEC = MapCodec.unit(INSTANCE);
     public static final StreamCodec<RegistryFriendlyByteBuf, FlyingCarpetRecipe> STREAM_CODEC =
-        StreamCodec.unit(new FlyingCarpetRecipe());
+        StreamCodec.unit(INSTANCE);
     public static final RecipeSerializer<FlyingCarpetRecipe> SERIALIZER =
         new RecipeSerializer<>(MAP_CODEC, STREAM_CODEC);
 
