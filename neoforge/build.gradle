@@ -22,6 +22,17 @@ neoForge {
     }
 }
 
+repositories {
+    maven {
+        name = 'BlameJared'
+        url = 'https://maven.blamejared.com'
+    }
+}
+
+dependencies {
+    compileOnly "mezz.jei:jei-${project.minecraft_version}-common-api:${project.jei_version}"
+}
+
 processResources {
     inputs.property "version", project.version
 

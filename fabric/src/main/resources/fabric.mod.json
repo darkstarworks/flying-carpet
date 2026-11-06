@@ -23,6 +23,9 @@
     ],
     "modmenu": [
       "com.darkstarworks.flyingcarpet.client.ModMenuIntegration"
+    ],
+    "jei_mod_plugin": [
+      "com.darkstarworks.flyingcarpet.compat.jei.FlyingCarpetJeiPlugin"
     ]
   },
   "mixins": [
@@ -35,6 +38,7 @@
     "fabric-api": "*"
   },
   "suggests": {
-    "modmenu": "*"
+    "modmenu": "*",
+    "jei": "*"
   }
 }

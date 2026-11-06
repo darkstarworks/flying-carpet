@@ -46,13 +46,10 @@ public class FlyingCarpetRecipe extends CustomRecipe {
         return cushionColors.get(item);
     }
 
-    @Override
-    public boolean matches(final CraftingInput input, final Level level) {
-        FlyingCarpetConfig cfg = FlyingCarpetConfig.get();
-
-        // Blank, malformed or unknown ids are skipped so a typo can't disable the recipe.
-        List<Item> neededRods = new ArrayList<>();
-        for (String idStr : cfg.rodSlots()) {
+    /** The configured extra ingredients; blank, malformed or unknown ids are skipped so a typo can't disable the recipe. */
+    public static List<Item> extraIngredients() {
+        List<Item> items = new ArrayList<>();
+        for (String idStr : FlyingCarpetConfig.get().rodSlots()) {
             if (idStr == null || idStr.isBlank()) {
                 continue;
             }
@@ -61,11 +58,17 @@ public class FlyingCarpetRecipe extends CustomRecipe {
                 continue;
             }
             Item item = BuiltInRegistries.ITEM.getValue(id);
-            if (item == Items.AIR) {
-                continue; // unknown id -> ignore this slot
+            if (item != Items.AIR) {
+                items.add(item);
             }
-            neededRods.add(item);
         }
+        return items;
+    }
+
+    @Override
+    public boolean matches(final CraftingInput input, final Level level) {
+        FlyingCarpetConfig cfg = FlyingCarpetConfig.get();
+        List<Item> neededRods = extraIngredients();
 
         DyeColor color = null;
         int cushions = 0;
