@@ -12,7 +12,7 @@ Short video: https://github.com/user-attachments/assets/84a5f9d4-c5b0-470f-8d88-
 2. Add a Breeze Rod, a Blaze Rod and another Breeze Rod. Their position in the grid doesn't matter.
 3. Take the Flying Carpet. It has the color of the cushions.
 
-In creative mode, all 16 carpets are under **Tools & Utilities**.
+In creative mode, all 16 carpets are under **Tools & Utilities**. With JEI installed, you can look up the recipe there too.
 
 ## Fly
 
@@ -56,6 +56,7 @@ On a server, the server's settings apply. Server owners can also edit `config/fl
 * Minecraft 26.3
 * Fabric: Fabric API. Mod Menu is optional.
 * NeoForge: nothing else
+* JEI is optional. If it's installed, it shows the carpet recipes.
 
 Install the mod on the server and on every player's game.
 

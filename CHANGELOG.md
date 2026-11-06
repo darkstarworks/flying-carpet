@@ -1,3 +1,7 @@
+## [0.2.2] - 2026-11-06
+
+- **JEI support.** With JEI installed, look up a Flying Carpet to see how to craft it in all 16 colors. JEI is optional.
+
 ## [0.2.1] - 2026-11-05
 
 - **NeoForge fix.** Worlds and servers no longer fail to load with a "Failed to encode packet" error while joining.
